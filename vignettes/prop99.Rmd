@@ -1,0 +1,110 @@
+---
+## Copyright 2021 Google LLC
+##
+## Licensed under the Apache License, Version 2.0 (the "License");
+## you may not use this file except in compliance with the License.
+## You may obtain a copy of the License at
+##
+##     https://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+##
+---
+title: "Proposition 99"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Proposition 99}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  out.width = '90%', 
+  out.height = '600px',
+  fig.align='center'
+)
+set.seed(123)
+```
+
+
+```{r time_tiles, out.height = '900px'}
+library(bsynth)
+
+prop99_synth <-
+  bayesianSynth$new(
+    data = prop99_df,
+    time = year,
+    id = state,
+    treated = D,
+    outcome = packs,
+    GP = FALSE, 
+    ci_width = 0.95
+  )
+
+prop99_synth$timeTiles +
+  ggplot2::xlab("Year") +
+  ggplot2::ylab("State") +
+  ggplot2::theme(text = ggplot2::element_text(size=12))
+
+
+```
+
+## Fit without Gaussian Process 
+
+```{r results="hide"}
+prop99_synth$fit(control = list(adapt_delta = 0.999, max_treedepth = 15),
+                 cores = 4,
+                 refresh = 0,
+                 seed = 1982, 
+                 warmup = 4000,
+                 iter = 6000)
+
+prop99_synth$synthetic  +
+  ggplot2::xlab("Year") +
+  ggplot2::ylab("Per-Capita Cigarrette Sales (in Packs)") 
+
+prop99_synth$effect() +
+  ggplot2::xlab("Year") +
+  ggplot2::ylab("Change in Per-Capita Cigarrette Sales (in Packs)") 
+```
+
+## Fit with Gaussian Process 
+
+```{r results="hide"}
+prop99_synth_gp <-
+  bayesianSynth$new(
+    data = prop99_df,
+    time = year,
+    id = state,
+    treated = D,
+    outcome = packs,
+    GP = TRUE, 
+    ci_width = 0.95
+  )
+
+prop99_synth_gp$fit(control = list(adapt_delta = 0.999, max_treedepth = 15),
+                 cores = 4,
+                 refresh = 0,
+                 seed = 1982, 
+                 warmup = 4000,
+                 iter = 6000)
+
+prop99_synth_gp$synthetic  +
+  ggplot2::xlab("Year") +
+  ggplot2::ylab("Per-Capita Cigarrette Sales (in Packs)") 
+
+prop99_synth_gp$effect() +
+  ggplot2::xlab("Year") +
+  ggplot2::ylab("Change in Per-Capita Cigarrette Sales (in Packs)") 
+```
+

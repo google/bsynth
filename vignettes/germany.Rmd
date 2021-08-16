@@ -1,0 +1,284 @@
+---
+## Copyright 2021 Google LLC
+##
+## Licensed under the Apache License, Version 2.0 (the "License");
+## you may not use this file except in compliance with the License.
+## You may obtain a copy of the License at
+##
+##     https://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+##
+---
+title: "Germany Reunification"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Germany Reunification}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  out.width = '90%', 
+  out.height = '600px',
+  fig.align='center'
+)
+set.seed(123)
+```
+
+## Background
+
+In this vignette I show how a simple Bayesian model can be used to generate a synthetic control to estimate the effect of the 1990 German reunification on per-capita GDP in West Germany. Figure 1 (Figure 1a, [Abadie, Diamond, and Hainmueller 2015](https://onlinelibrary.wiley.com/doi/abs/10.1111/ajps.12116)) shows the trajectory of GDP per-capita for West Germany and for a synthetic control generated using a the canonical approach described in ([Abadie and Gardeazabal, 2003](https://www.aeaweb.org/articles?id=10.1257/000282803321455188); [Abadie et al., 2010](https://www.aeaweb.org/articles?id=10.1257/000282803321455188)). 
+
+
+```{r original_figure, echo = FALSE, fig.cap = "Figure 1: Trends in per Capita GDP: West Germany versus Synthetic West Germany"}
+knitr::include_graphics(path = "https://ignacio.martinez.fyi/synthetic_control/german_reunification.png")
+
+```
+
+## Bayesian Synthetic Control
+
+Let $y^\star_t$ be the standardized per Capita GDP of West Germany in period $t$, 
+and $x^\star_t$ be a vector of the standardized per Capita GDP of 
+the donor countries in period $t$. 
+
+$$ 
+\begin{aligned}
+y^\star_t &\sim N(x^\star_t\beta , \sigma^2) \\
+\beta &\sim \text{Dir}(1)\\
+\sigma &\sim N^+(0,1)
+\end{aligned}
+$$
+
+Notice that $\beta$ is a simplex. Therefore, the weights ares bound to be 
+positive and sum to 1. Further more, notice that I use a non-informative prior 
+for the weights. 
+
+
+```{r time_tiles}
+library(dplyr)
+library(ggplot2)
+library(bsynth)
+# Create a new factory
+germany_synth <- bayesianSynth$new(data = germany, 
+                                    time = year, 
+                                    id = country, 
+                                    treated = D, 
+                                    outcome = gdp, 
+                                    ci_width = 0.95)
+# Visualize the timeline 
+germany_synth$timeTiles +
+  ggplot2::xlab("Year") +
+  ggplot2::ylab("Country")
+
+```
+
+```{r results="hide"}
+# Fit the model
+germany_synth$fit()
+
+# Visualize the synthetic control
+germany_synth$synthetic  +
+  ggplot2::xlab("Year") +
+  ggplot2::ylab("Per Capita GDP (PPP, 2002 USD)") +
+  ggplot2::scale_y_continuous(labels=scales::dollar_format())
+
+# Visualize the treatment effect
+germany_synth$effect() +
+  ggplot2::xlab("Year") +
+  ggplot2::ylab("Gap in Per Capita GDP (PPP, 2002 USD)") +
+  ggplot2::scale_y_continuous(labels = scales::dollar_format())
+
+```
+
+## GSynth
+
+In this section of the vignette I use the generalized synthetic control method based on interactive fixed effect models and implemented in [{gsynth}](https://github.com/xuyiqing/gsynth) to provide an additional comparison. 
+
+```{r gsynth}
+
+library(gsynth)
+
+out <-
+  gsynth(
+    gdp ~ D,
+    data = germany,
+    index = c("country", "year"),
+    force = "two-way",
+    CV = TRUE,
+    r = c(0, 5),
+    se = TRUE,
+    inference = "parametric",
+    nboots = 10000,
+    parallel = FALSE,
+    cores = 4
+  )
+
+gsynth_plot <- plot(out, 
+                    xlab = "Period", 
+                    main = "GSynth: German Reunification", 
+                    ylab = "Effect")
+
+```
+
+## Side by Side
+
+```{r side_by_side}
+
+intervention <- germany %>% 
+  filter(D == 1) %>% 
+  summarise(year = min(year)) %>% 
+  pull(year)
+
+
+bsynth_plot_data <-
+  germany_synth$plotData %>%
+  select(x = year, y = tau, ymin = tau_LB, ymax = tau_UB) %>%
+  mutate(method = "bsynth")
+
+timeXwalk <- germany %>%
+  select(year) %>% 
+  distinct() %>% 
+  arrange(year) %>% 
+  mutate(t = 1:n())
+
+gsynth_plot_data <- gsynth_plot$data %>%
+  mutate(t = time + 30) %>%
+  inner_join(timeXwalk, by = "t") %>%
+  select(x = year, y = ATT, ymin = CI.lower, ymax = CI.upper) %>%
+  mutate(method = "GSynth")
+
+plot_data <- bind_rows(gsynth_plot_data, bsynth_plot_data)
+
+ggplot(data = plot_data, aes(x = x)) +
+  geom_line(aes(y = y)) +
+  geom_ribbon(aes(ymin = ymin, ymax = ymax),
+                       color = "gray",
+                       alpha = 0.2) +
+  theme_bw(base_size = 14) +
+  theme(
+    legend.position = "none",
+    panel.border = element_blank(),
+    axis.line = element_line()
+  ) +
+  geom_vline(xintercept = intervention, linetype = "dashed") +
+  facet_grid(cols = dplyr::vars(method)) +
+  xlab("Year") +
+  ylab("Gap in Per Capita GDP (PPP, 2002 USD)") +
+  scale_y_continuous(labels = scales::dollar_format())
+
+
+```
+
+## Placebo
+
+### GSynth
+
+```{r}
+
+placebo_germany <- germany %>%
+  filter(year < intervention) %>%
+  mutate(D = case_when(
+    (country == "West Germany" &
+      year >= (intervention - lubridate::years(5)) )~ 1,
+    TRUE ~ 0
+  ))
+
+out <-
+  gsynth(
+    gdp ~ D,
+    data = placebo_germany,
+    index = c("country", "year"),
+    force = "two-way",
+    CV = TRUE,
+    r = c(0, 5),
+    se = TRUE,
+    inference = "parametric",
+    nboots = 10000,
+    parallel = FALSE,
+    cores = 4
+  )
+
+gsynth_plot <- plot(out, 
+                    xlab = "Period", 
+                    main = "GSynth: Placebo German Reunification", 
+                    ylab = "Effect")
+```
+
+
+### bsynth
+
+```{r results="hide"}
+germany_synth_placebo <- bayesianSynth$new(
+  data = placebo_germany,
+  time = year,
+  id = country,
+  treated = D,
+  outcome = gdp,
+  ci_width = 0.95
+)
+
+germany_synth_placebo$fit()
+
+germany_synth_placebo$timeTiles
+
+
+germany_synth_placebo$effect() +
+  ggplot2::xlab("Year") +
+  ggplot2::ylab("Gap in Per Capita GDP (PPP, 2002 USD)") +
+  ggplot2::scale_y_continuous(labels = scales::dollar_format())
+
+```
+
+
+### Side by Side
+
+```{r}
+bsynth_plot_data <-
+  germany_synth_placebo$plotData %>%
+  select(x = year, y = tau, ymin = tau_LB, ymax = tau_UB) %>%
+  mutate(method = "bsynth")
+
+timeXwalk <- germany %>%
+  select(year) %>% 
+  distinct() %>% 
+  arrange(year) %>% 
+  mutate(t = 1:n())
+
+gsynth_plot_data <- gsynth_plot$data %>%
+  mutate(t = time + 25) %>%
+  inner_join(timeXwalk, by = "t") %>%
+  select(x = year, y = ATT, ymin = CI.lower, ymax = CI.upper) %>%
+  mutate(method = "GSynth")
+
+plot_data <- bind_rows(gsynth_plot_data, bsynth_plot_data)
+
+ggplot(data = plot_data, aes(x = x)) +
+  geom_line(aes(y = y)) +
+  geom_ribbon(aes(ymin = ymin, ymax = ymax),
+              color = "gray",
+              alpha = 0.2) +
+  theme_bw(base_size = 14) +
+  theme(
+    legend.position = "none",
+    panel.border = element_blank(),
+    axis.line = element_line()
+  ) +
+  geom_vline(xintercept = intervention - lubridate::years(5),
+             linetype = "dashed") +
+  facet_grid(cols = dplyr::vars(method)) +
+  xlab("Year") +
+  ylab("Gap in Per Capita GDP (PPP, 2002 USD)") +
+  scale_y_continuous(labels = scales::dollar_format())
+```
+
