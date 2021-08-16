@@ -248,19 +248,19 @@ bayesianSynth <- R6::R6Class(
       if (length(private$treated_ids) == 1) {
         if (is.null(covariates)) {
           if (gp) {
-            private$stan_model <- bsynth.models::model2 # stanmodels$model2
+            private$stan_model <- stanmodels$model2
           } else {
             if (predictor_match) {
-              private$stan_model <- bsynth.models::model1_gammaOmega # gamma BCS
+              private$stan_model <- stanmodels$model1_gammaOmega
             } else {
-              private$stan_model <- bsynth.models::model1 # stanmodels$model1
+              private$stan_model <- stanmodels$model1
             }
           }
         } else {
           if (gp) {
-            private$stan_model <- bsynth.models::model4 # stanmodels$model4
+            private$stan_model <- stanmodels$model4
           } else {
-            private$stan_model <- bsynth.models::model3 # stanmodels$model3
+            private$stan_model <- stanmodels$model3
           }
           private$covariates <- covariates %>%
             dplyr::arrange(!!private$time)
@@ -268,15 +268,15 @@ bayesianSynth <- R6::R6Class(
       } else {
         if (is.null(covariates)) {
           if (gp) {
-            private$stan_model <- bsynth.models::model8 # stanmodels$model8
+            private$stan_model <- stanmodels$model8
           } else {
-            private$stan_model <- bsynth.models::model5 # stanmodels$model5
+            private$stan_model <- stanmodels$model5
           }
         } else {
           if (gp) {
-            private$stan_model <- bsynth.models::model7 # stanmodels$model7
+            private$stan_model <- stanmodels$model7
           } else {
-            private$stan_model <- bsynth.models::model6 # stanmodels$model6
+            private$stan_model <- stanmodels$model6
           }
           private$covariates <- covariates %>%
             dplyr::arrange(!!private$time)
