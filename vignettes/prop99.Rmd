@@ -73,7 +73,7 @@ prop99_synth$synthetic  +
   ggplot2::xlab("Year") +
   ggplot2::ylab("Per-Capita Cigarrette Sales (in Packs)") 
 
-prop99_synth$effect() +
+prop99_synth$effectPlot() +
   ggplot2::xlab("Year") +
   ggplot2::ylab("Change in Per-Capita Cigarrette Sales (in Packs)") 
 ```
@@ -103,7 +103,7 @@ prop99_synth_gp$synthetic  +
   ggplot2::xlab("Year") +
   ggplot2::ylab("Per-Capita Cigarrette Sales (in Packs)") 
 
-prop99_synth_gp$effect() +
+prop99_synth_gp$effectPlot() +
   ggplot2::xlab("Year") +
   ggplot2::ylab("Change in Per-Capita Cigarrette Sales (in Packs)") 
 ```

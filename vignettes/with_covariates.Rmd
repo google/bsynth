@@ -143,7 +143,7 @@ synth <- bsynth::bayesianSynth$new(
 
 synth$fit(cores = 4)
 
-synth$effect()
+synth$effectPlot()
 
 synth$synthetic
 
@@ -187,7 +187,7 @@ synth <- bsynth::bayesianSynth$new(
 
 synth$fit(cores = 4)
 
-synth$effect()
+synth$effectPlot()
 
 synth$synthetic
 

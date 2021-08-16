@@ -94,7 +94,7 @@ germany_synth$synthetic  +
   ggplot2::scale_y_continuous(labels=scales::dollar_format())
 
 # Visualize the treatment effect
-germany_synth$effect() +
+germany_synth$effectPlot() +
   ggplot2::xlab("Year") +
   ggplot2::ylab("Gap in Per Capita GDP (PPP, 2002 USD)") +
   ggplot2::scale_y_continuous(labels = scales::dollar_format())
@@ -233,7 +233,7 @@ germany_synth_placebo$fit()
 germany_synth_placebo$timeTiles
 
 
-germany_synth_placebo$effect() +
+germany_synth_placebo$effectPlot() +
   ggplot2::xlab("Year") +
   ggplot2::ylab("Gap in Per Capita GDP (PPP, 2002 USD)") +
   ggplot2::scale_y_continuous(labels = scales::dollar_format())

@@ -93,7 +93,7 @@ synth$synthetic
 ### Visualize the treatment effect
 
 ```{r}
-synth$effect(subset = c("Average"), facet = FALSE) + 
+synth$effectPlot((subset = c("Average"), facet = FALSE) + 
   ggplot2::scale_y_continuous(breaks=seq(-2,12,2))
 ```
 
