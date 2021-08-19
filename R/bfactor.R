@@ -153,9 +153,9 @@ bayesianFactor <- R6::R6Class(
         #  dplyr::select(-{{id}}) %>%
         #  any(is.na()))
 
-        private$stan_model <- bsynth.models::factor_model_with_covariates
+        private$stan_model <- stanmodels$factor_model_with_covariates
       } else {
-        private$stan_model <- bsynth.models::factor_model_without_covariates
+        private$stan_model <- stanmodels$factor_model_without_covariates
       }
 
       private$data <- data %>%
