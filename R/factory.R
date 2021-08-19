@@ -831,7 +831,7 @@ bayesianSynth <- R6::R6Class(
     #' @param ... other arguments passed to vizdraws::vizdraws().
     liftDraws = function(from, to, ...) {
       if (inherits(from, "Date")) {
-        if (is.infinite(abs(from))) {
+        if (is.infinite(from)) {
           from <- private$intervention
         }
         if (is.infinite(to)) {
@@ -861,8 +861,6 @@ bayesianSynth <- R6::R6Class(
         units = "the contrafactual lift",
         ...
       ) %>% return()
-
-      return(posterior)
     },
     # TODO(jvives): Add utility functions to make liftBias and Draws
     # more compact.
