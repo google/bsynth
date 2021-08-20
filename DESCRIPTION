@@ -3,11 +3,14 @@ Package: bsynth
 Title: Bayesian Synthetic Control
 Version: 0.0.0.9000
 Authors@R:
-    person(given = "Ignacio",
+    c(person(given = "Ignacio",
            family = "Martinez",
            role = c("aut", "cre"),
            email = "martinezig@google.com",
-           comment = c(ORCID = "0000-0002-3721-8172"))
+           comment = c(ORCID = "0000-0002-3721-8172")),
+      person(given = "Jaume",
+	   role = "aut",
+	   email = "vives@mit.edu"))
 Description: Provides causal inference with a Bayesian synthetic control method.
 License: file LICENSE
 URL: https://github.com/google/bsynth
