@@ -50,6 +50,7 @@
 #' plotted for the case with more than one treated unit.
 #' @param treated_ids Identifiers for the treated units.
 #' @param data Data.frame with the input data.
+#' @importFrom rlang :=
 #' @details other params same as get_plot_df() function.
 .get_plot_df2 <- function(y_synth_draws, data, treated_ids,
                           id, time, outcome, ci = 0.75) {
