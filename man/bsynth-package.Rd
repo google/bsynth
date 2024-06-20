@@ -6,8 +6,7 @@
 \alias{bsynth}
 \title{The 'bsynth' package.}
 \description{
-Provides causal inference with a Bayesian synthetic
-control method.
+A DESCRIPTION OF THE PACKAGE
 }
 \references{
 Stan Development Team (2020). RStan: the R interface to Stan. R package version 2.21.2. https://mc-stan.org
