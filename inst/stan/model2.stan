@@ -86,4 +86,3 @@ generated quantities {
       y_pred[j] = normal_rng(X_pred_std[j,]*beta + f[N + j], sigma) * sd_y + mean_y; //
    }
 }
-

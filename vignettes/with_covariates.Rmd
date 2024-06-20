@@ -1,0 +1,201 @@
+---
+title: "With Covariates"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{With Covariates}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  out.width = '90%', 
+  out.height = '600px',
+  fig.align='center'
+)
+```
+
+## Generate Synthetic Data
+
+```{r}
+set.seed(1)
+library(dplyr)
+library(ggplot2)
+
+true_lift <- tibble(t = 1:100) %>% 
+  mutate(
+    x = t - 71,
+    lift = case_when(x < 0 ~ 0,
+                  TRUE ~ dgamma(x = x, shape = 2, scale = 10)),
+    lift = 3*lift) %>% 
+  select(-x)
+
+
+
+
+fake_data <-
+  tibble(x1 = 100 + arima.sim(model = list(ar = 0.99), n = 100),
+         x2 = 300 + arima.sim(model = list(ar = 0.57), n = 100),
+         x3 = 50 + arima.sim(model = list(ar = 0.79, ma = 0.8), n = 100),
+         m1 = rnorm(n = 100, mean = -2, sd = 1),
+         m2 = rnorm(n = 100, mean = 0.5, sd = 1),
+         m3 = rnorm(n = 100, mean = 0.25, sd = 1),
+         m4 = rnorm(n = 100, mean = 0.15, sd = 1)) %>%
+  mutate(
+    y = as.numeric(0.2 * x1 + 
+                     0.3 * x2 +
+                     0.5 * x3 -
+                     6.5*m1 -
+                     3.1*m2 -
+                     2.3*m3 -
+                     1.1*m4 +
+                     rnorm(100)),
+    t = 1:n()
+  ) %>% 
+  inner_join(true_lift, by = "t") %>% 
+  mutate(
+    y0 = y,
+    d = y * lift,
+    y = y * (1+lift)
+  )
+
+true_lift <- fake_data %>% 
+  select(t, lift, d)
+
+true_lift_table <- fake_data %>% 
+  filter(t >= 71) %>% 
+  summarise(sum_y0 = sum(y0),
+            sum_y1 = sum(y),
+            lift = (sum_y1 - sum_y0)/sum_y0)
+
+truth <- true_lift_table %>% 
+  pull(lift)
+
+fake_data <- fake_data%>% 
+  select(-lift, -d, -y0)
+
+ggplot(data = fake_data, aes(x=t, y=y)) +
+  geom_line() +
+  xlab("Time") +
+  ylab("y") +
+  theme_bw() +
+  geom_vline(xintercept = 71, linetype = "dashed") +
+  ggtitle(label = "Time Series of Interest", 
+          subtitle = "Intervention happens in period 71")
+
+ggplot(data = true_lift, aes(x=t,y=lift)) +
+  geom_line() +
+  xlab("Time") +
+  ylab("Lift") +
+  theme_bw() +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  geom_vline(xintercept = 71, linetype = "dashed") +
+  ggtitle(label = "True Lift", 
+          subtitle = "Intervention happens in period 71")
+```
+
+* In these synthetic data the true lift between periods 71 and 100 is `r scales::percent(truth, accuracy = 0.1)`.
+
+
+## Simplest Model
+
+
+```{r}
+library(bsynth)
+
+ci_width <- 0.95
+
+long_data <- fake_data %>% 
+  select(-m1, -m2, -m3, -m4) %>%
+  tidyr::pivot_longer(-t, names_to = "id", values_to = "y") %>% 
+  mutate(D = case_when(id == "y" & t >= 71 ~ 1,
+                       TRUE ~ 0))
+
+synth <- bsynth::bayesianSynth$new(
+  data = long_data,
+  time = t,
+  id = id,
+  treated = D,
+  outcome = y,
+  ci_width = ci_width
+)
+
+
+synth$fit(cores = 4)
+
+synth$effectPlot()
+
+synth$synthetic
+
+synth$liftDraws(
+  from = 71,
+  to = 100,
+  breaks = c(0.01, 0.06, 0.09),
+  break_names = c("Not worth it",
+                  "Worth it",
+                  "Very worth it",
+                  "Amazing")
+)
+
+point <- synth$summarizeLift()
+
+
+```
+* We estimate a counterfactual lift between periods 71 and 100 of 
+`r scales::percent(point[[1]], accuracy = 0.1)` with a 
+`r scales::percent(ci_width, accuracy = 1)` probability that is as low as
+`r scales::percent(point[[2]], accuracy = 0.1)` and as high as 
+`r scales::percent(point[[3]], accuracy = 0.1)`.
+
+
+## With Covariates
+
+```{r}
+covariates <- fake_data %>% 
+  select(t, m1, m2, m3, m4) 
+  
+synth <- bsynth::bayesianSynth$new(
+  data = long_data,
+  time = t,
+  id = id,
+  treated = D,
+  outcome = y,
+  ci_width = ci_width, 
+  covariates = covariates
+)
+
+
+synth$fit(cores = 4)
+
+synth$effectPlot()
+
+synth$synthetic
+
+synth$liftDraws(
+  from = 71,
+  to = 100,
+  breaks = c(0.01, 0.06, 0.09),
+  break_names = c("Not worth it",
+                  "Worth it",
+                  "Very worth it",
+                  "Amazing")
+)
+
+point <- synth$summarizeLift()
+
+```
+
+* We estimate a counterfactual lift between periods 71 and 100 of 
+`r scales::percent(point[[1]], accuracy = 0.1)` with a 
+`r scales::percent(ci_width, accuracy = 1)` probability that is as low as
+`r scales::percent(point[[2]], accuracy = 0.1)` and as high as 
+`r scales::percent(point[[3]], accuracy = 0.1)`.
+
+
+
+
