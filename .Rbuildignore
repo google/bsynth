@@ -5,3 +5,5 @@
 ^docs$
 ^pkgdown$
 ^CRAN-SUBMISSION$
+^doc$
+^Meta$

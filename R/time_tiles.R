@@ -32,7 +32,7 @@ time_tiles <- function(data, time, id, status) {
     y = {{ id }},
     fill = {{ status }}
   )) +
-    ggplot2::geom_tile(color = "white", size = 1) +
+    ggplot2::geom_tile(color = "white", linewidth = 1) +
     ggplot2::scale_y_discrete(limits = rev) +
     ggplot2::scale_fill_manual(values = c("#4285F4", "#F4B400", "#DB4437")) +
     ggplot2::theme_classic(base_size = 14) +
