@@ -12,10 +12,15 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 ##
-#' @description
+#' Get Parameter Estimates in Long Format
+#'
 #' Helper function to get the long dataset of draws given a stan fit object.
+#'
 #' @param fit Stan object with the fitted model.
-#' @param par Variable to do the long table for.
+#' @param par Variable to do the long table for.expand_more
+#'
+#' @return A tibble containing the parameter estimates in long format.
+#'
 .get_par_long <- function(fit, par) {
   par <- rlang::enquo(par)
   long_tlb <- fit %>%

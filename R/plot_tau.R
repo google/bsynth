@@ -12,16 +12,24 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 ##
-#' @description
-#' Plots the treatment effect estimate given the model.
-#' @param data Data.frame with the input data.
-#' @param x Name of the x axis variable (e.g. time period).
-#' @param y Name of the y axis (e.g. treatement effect).
-#' @param ymin, ymax Range values of the y variable.
-#' @param xintercept Value of the time of the intervention to plot dashed line.
-#' @param facet Variable to split the plots by.
-#' @param id Variable name of the units.
-#' @param subset Set of units to use for plot, all if NULL.
+#' Plot Treatment Effect Estimate
+#'
+#' This internal helper function creates a plot to visualize the estimated
+#' treatment effect over time. It allows for faceting by a specified variable
+#' and optional subsetting of units to include in the plot.
+#'
+#' @param data A data frame containing the data to be plotted.
+#' @param x The name of the x-axis variable (typically the time period) (as a string).
+#' @param y The name of the y-axis variable (typically the treatment effect) (as a string).
+#' @param ymin The name of the variable containing the lower bound of the confidence interval (as a string).
+#' @param ymax The name of the variable containing the upper bound of the confidence interval (as a string).
+#' @param xintercept The time point of the intervention to be marked with a vertical dashed line.
+#' @param facet (Optional) The name of the variable to facet the plot by (as a string).
+#' @param id The name of the variable identifying the units (as a string).
+#' @param subset (Optional) A vector specifying a subset of units to include in the plot. If NULL, all units are included.
+#'
+#' @return A ggplot object displaying the treatment effect plot.
+#'
 .plot_tau <- function(data, x, y, ymin, ymax, xintercept,
                       facet, id, subset = NULL) {
   if (!is.null(subset)) {

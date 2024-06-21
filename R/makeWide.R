@@ -12,12 +12,23 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 ##
-#' @description
-#' Converts data to wide format.
-#' @param data Data.frame with the input data.
-#' @param time Variable name for the time period.
-#' @param id Variable name for the units.
-#' @param oucome Name of the outcome variable.
+#' Convert Data to Wide Format
+#'
+#' This internal helper function transforms data from a long format, where each
+#' row represents an observation for a specific unit and time, to a wide format,
+#' where each row represents a time period and each column represents a unit's outcome.
+#' It specifically focuses on separating treated and untreated units.
+#'
+#' @param data A data frame containing the input data.
+#' @param id The name of the variable in `data` that identifies units (as a string).
+#' @param time The name of the time period variable (as a string).
+#' @param outcome The name of the outcome variable (as a string).
+#' @param treatment The name of the variable in `data` that indicates treatment status (as a string).
+#'
+#' @return A data frame in wide format, where each row corresponds to a time period,
+#'   and columns include the time variable, the treatment indicator, and the outcome
+#'   values for each treated unit and all untreated units.
+#'
 .makeWide <- function(data, id, time, outcome, treatment) {
   data <- data %>%
     dplyr::mutate(.tmp_id = as.integer(as.factor(!!id)))

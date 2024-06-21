@@ -17,7 +17,7 @@ BugReports: https://github.com/google/bsynth/issues
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.3.1
 Biarch: true
 Depends: 
     R (>= 3.4.0)
@@ -37,7 +37,9 @@ Imports:
     scales,
     tibble,
     tidyr,
-    vizdraws (>= 1.1)
+    vizdraws (>= 1.1),
+    stats,
+    rlang
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),

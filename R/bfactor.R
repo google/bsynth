@@ -45,7 +45,7 @@
 #' @param outcome Name of the outcome variable.
 #' @param ci_width Credible interval's width.  This number is in the
 #'   (0,1) interval.
-#' @param covariates Dataframe with a column for {id} and the other columns
+#' @param covariates Dataframe with a column for id and the other columns
 #'   Defaults to NULL if no covariates should be included in the model.
 #' @export
 bayesianFactor <- R6::R6Class(
@@ -444,10 +444,11 @@ bayesianFactor <- R6::R6Class(
     },
 
     #' @description
-    #' Plot bias magnitude in terms of lift for period [firstT, lastT]
-    #' @param firstT start of the time period to compute relative bias
-    #'     over. They must be after the intervention.
-    #' @param lastT end of the Time period to compute relative bias
+    #' Plot bias magnitude in terms of lift for period (firstT, lastT)
+    #' @param firstT Start of the time period to compute relative bias over.
+    #' Must be after the intervention.
+    #' @param lastT End of the time period to compute relative bias over.
+    #' Must be after the intervention.
     #'     over. They must be after the intervention.
     #' @param offset Target lift %.
     #' @param ... other arguments passed to vizdraws::vizdraws().
@@ -527,7 +528,7 @@ bayesianFactor <- R6::R6Class(
     },
 
     #' @description
-    #' Plots relative upper bias / tau for a time period [firstT, lastT].
+    #' Plots relative upper bias / tau for a time period (firstT, lastT).
     #' @param small_bias Threshold value for considering the bias "small".
     #' @param firstT,lastT Time periods to compute relative bias over, they must
     #'     after the intervention.
