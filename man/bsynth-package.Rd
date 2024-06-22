@@ -21,7 +21,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Ignacio Martinez \email{martinezig@google.com} (\href{https://orcid.org/0000-0002-3721-8172}{ORCID})
+\strong{Maintainer}: Ignacio Martinez \email{ignacio@martinez.fyi} (\href{https://orcid.org/0000-0002-3721-8172}{ORCID})
 
 Authors:
 \itemize{
