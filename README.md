@@ -1,14 +1,14 @@
 # bsynth
 
-`bsynth` provides causal inference with a Bayesian synthetic control method.
+`bsynth` provides causal inference with a [Bayesian synthetic control method](https://arxiv.org/abs/2206.01779).
 
 ## Contributing
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) for details.
+See [`CONTRIBUTING.md`](https://github.com/google/bsynth/blob/main/CONTRIBUTING.md) for details.
 
 ## License
 
-Apache 2.0; see [`LICENSE`](LICENSE) for details.
+Apache 2.0; see [`LICENSE`](https://www.apache.org/licenses/LICENSE-2.0) for details.
 
 ## Disclaimer
 

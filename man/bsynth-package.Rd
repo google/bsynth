@@ -16,6 +16,7 @@ Stan Development Team (2020). RStan: the R interface to Stan. R package version 
 Useful links:
 \itemize{
   \item \url{https://github.com/google/bsynth}
+  \item \url{https://arxiv.org/abs/2206.01779}
   \item Report bugs at \url{https://github.com/google/bsynth/issues}
 }
 
