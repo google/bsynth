@@ -15,7 +15,7 @@ Description: Implements the Bayesian Synthetic Control method for causal inferen
     treatment effects in settings with a single treated unit and multiple control
     units, allowing for uncertainty quantification and flexible modeling of
     time-varying effects. The methodology is based on the paper by Vives and
-    Martinez (2022) <arXiv:2206.01779>.
+    Martinez (2022) <doi:10.48550/arXiv.2206.01779>.
 License: Apache License 2.0
 URL: https://github.com/google/bsynth, https://arxiv.org/abs/2206.01779
 BugReports: https://github.com/google/bsynth/issues
