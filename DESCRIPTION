@@ -33,6 +33,7 @@ Imports:
     cubelyr,
     dplyr,
     ggplot2,
+    ggridges,
     glue,
     magrittr,
     methods,
