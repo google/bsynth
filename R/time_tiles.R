@@ -12,19 +12,27 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 ##
-#' @description function to return time tiles plot summarizing when and which
-#' units are affected by the intervention.
-#' @param data Data.frame with the input data.
-#' @param time Variable name for the time period.
-#' @param id Variable name for the units.
-#' @param status Variable that identifies the treatment status.
+#' Time Tiles Plot of Intervention Impact
+#'
+#' This function creates a time tiles plot visualizing when and which units are
+#' affected by an intervention. Each tile represents a unit at a specific time point,
+#' with the color indicating the treatment status.
+#'
+#' @param data A data frame containing the input data.
+#' @param time The name of the time period variable (as a string).
+#' @param id The name of the unit identifier variable (as a string).
+#' @param status The name of the variable that identifies the treatment status (as a string).
+#'
+#' @return A ggplot object displaying the time tiles plot.
+#'
+#' @export
 time_tiles <- function(data, time, id, status) {
   tiles_plot <- ggplot2::ggplot(data, ggplot2::aes(
     x = {{ time }},
     y = {{ id }},
     fill = {{ status }}
   )) +
-    ggplot2::geom_tile(color = "white", size = 1) +
+    ggplot2::geom_tile(color = "white", linewidth = 1) +
     ggplot2::scale_y_discrete(limits = rev) +
     ggplot2::scale_fill_manual(values = c("#4285F4", "#F4B400", "#DB4437")) +
     ggplot2::theme_classic(base_size = 14) +

@@ -67,7 +67,7 @@ synth$timeTiles +
 ### Fit
 
 ```{r fit, results="hide"}
-synth$fit(cores = 4)
+synth$fit()
 ```
 
 ### Visualize the synthetic controls for each treated unit
@@ -81,4 +81,3 @@ synth$synthetic
 synth$effectPlot(subset = c("Average"), facet = FALSE) + 
   ggplot2::scale_y_continuous(breaks=seq(-2,12,2))
 ```
-

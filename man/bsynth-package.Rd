@@ -6,8 +6,27 @@
 \alias{bsynth}
 \title{The 'bsynth' package.}
 \description{
-A DESCRIPTION OF THE PACKAGE
+Provides causal inference with a Bayesian synthetic
+control method.
 }
 \references{
 Stan Development Team (2020). RStan: the R interface to Stan. R package version 2.21.2. https://mc-stan.org
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/google/bsynth}
+  \item \url{https://arxiv.org/abs/2206.01779}
+  \item Report bugs at \url{https://github.com/google/bsynth/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Ignacio Martinez \email{ignacio@martinez.fyi} (\href{https://orcid.org/0000-0002-3721-8172}{ORCID})
+
+Authors:
+\itemize{
+  \item Jaume \email{vives@mit.edu}
+}
+
 }

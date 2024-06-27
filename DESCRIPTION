@@ -1,23 +1,28 @@
 Package: bsynth
 Title: Bayesian Synthetic Control
-Version: 0.0.0.9000
+Version: 1.0
 Authors@R:
     c(person(given = "Ignacio",
            family = "Martinez",
            role = c("aut", "cre"),
-           email = "martinezig@google.com",
+           email = "ignacio@martinez.fyi",
            comment = c(ORCID = "0000-0002-3721-8172")),
       person(given = "Jaume",
 	   role = "aut",
 	   email = "vives@mit.edu"))
-Description: Provides causal inference with a Bayesian synthetic control method.
-License: file LICENSE
-URL: https://github.com/google/bsynth
+Description: Implements the Bayesian Synthetic Control method for causal inference
+    in comparative case studies. This package provides tools for estimating
+    treatment effects in settings with a single treated unit and multiple control
+    units, allowing for uncertainty quantification and flexible modeling of
+    time-varying effects. The methodology is based on the paper by Vives and
+    Martinez (2022) <doi:10.48550/arXiv.2206.01779>.
+License: Apache License 2.0
+URL: https://github.com/google/bsynth, https://arxiv.org/abs/2206.01779
 BugReports: https://github.com/google/bsynth/issues
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.3.1
 Biarch: true
 Depends: 
     R (>= 3.4.0)
@@ -37,7 +42,9 @@ Imports:
     scales,
     tibble,
     tidyr,
-    vizdraws (>= 1.1)
+    vizdraws (>= 1.1),
+    stats,
+    rlang
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),
@@ -50,5 +57,7 @@ Suggests:
     knitr,
     rmarkdown,
     roxygen2,
-    gsynth
+    gsynth,
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
+Config/testthat/edition: 3

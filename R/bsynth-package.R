@@ -17,15 +17,19 @@
 #' @description Provides causal inference with a Bayesian synthetic
 #'     control method.
 #'
-#' @docType package
+
 #' @name bsynth-package
 #' @aliases bsynth
 #' @useDynLib bsynth, .registration = TRUE
 #' @import methods
 #' @import Rcpp
 #' @importFrom rstan sampling
+#' @importFrom rlang :=
 #'
 #' @references
 #' Stan Development Team (2020). RStan: the R interface to Stan. R package version 2.21.2. https://mc-stan.org
 #'
-NULL
+"_PACKAGE"
+globalVariables(c(".", "i_idx", "t_idx", "draw", "idx", "UB", "LB", "tau",
+                  "tau_LB", "tau_UB", "y_hat", "diff_draw", "y_synth",
+                  "y_sim", "y_pred", "X1_sim", "X1_pred", "status", ".tmp_id"))

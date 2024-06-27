@@ -54,7 +54,7 @@
 #'   the treatment assignment of the intervention.
 #' @param outcome Name of the outcome variable.
 #' @param ci_width Credible interval's width.  This number is in the
-#'   [0,1] interval.
+#' (0,1) interval.
 #' @param intervention Intervention time period (e.g., year)
 #'    in which the treatment occurred.
 #' @param plot_data Tibble with the observed outcome and the
@@ -519,8 +519,8 @@ bayesianSynth <- R6::R6Class(
 
     #' @description
     #' Update the width of the credible interval.
-    #' @param ci_width New width for the credible interval. This number
-    #' should be in the (0,1) interval.
+    #' @param ci_width New width for the credible interval. This number should
+    #' be in the (0,1) interval.
     updateWidth = function(ci_width = 0.75) {
       stopifnot(exprs = {
         ci_width > 0
@@ -562,11 +562,11 @@ bayesianSynth <- R6::R6Class(
       return({
         c(
           point = mean(private$lift_draws$lift),
-          lower_bound = quantile(
+          lower_bound = stats::quantile(
             private$lift_draws$lift,
             (1 - private$ci_width) / 2
           ),
-          upper_bound = quantile(
+          upper_bound = stats::quantile(
             private$lift_draws$lift,
             1 - (1 - private$ci_width) / 2
           )
@@ -748,14 +748,16 @@ bayesianSynth <- R6::R6Class(
       return(tau_plot)
     },
     #' @description
-    #' Plots relative upper bias / tau for a time period [firstT, lastT].
+    #' Plots relative upper bias / tau for a time period (firstT, lastT).
     #'
     #' @return vizdraw object with the posterior distribution of relative bias.
     #' Bias is scaled by the time periods.
     #'
     #' @param small_bias Threshold value for considering the bias "small".
-    #' @param firstT,lastT Time periods to compute relative bias over, they
-    #'     must be after the intervention.
+    #' @param firstT Start of the time period to compute relative bias over.
+    #' Must be after the intervention.
+    #' @param lastT End of the time period to compute relative bias over.
+    #' Must be after the intervention.
     biasDraws = function(small_bias = 0.3, firstT, lastT) {
       # Calculate the gaps. This won't work with covariates.
       mad_pre_gaps <- private$y_synth_draws %>%
@@ -865,7 +867,7 @@ bayesianSynth <- R6::R6Class(
     # TODO(jvives): Add utility functions to make liftBias and Draws
     # more compact.
     #' @description
-    #' Plot Bias magnitude in terms of lift for period [firstT, lastT]
+    #' Plot Bias magnitude in terms of lift for period (firstT, lastT)
     #' pre_MADs / y0 relative to lift thresholds.
     #' @param firstT start of the time period to compute relative bias
     #'     over. They must be after the intervention.
@@ -944,31 +946,31 @@ bayesianSynth <- R6::R6Class(
       ) %>% return()
     },
     # TODO(jvives): finish implicit weight plots function to work generally
-    #' @description 
+    #' @description
     #' Plot implicit weight distribution across draws.
     #' @return ggplot object with weight distribution per unit.
     weightDraws = function(){
-      betas <- private$fitted %>% 
+      betas <- private$fitted %>%
         as.data.frame() %>%
         dplyr::select(contains('beta'))
-      
+
       beta_names <- private$data %>%
-        dplyr::filter(!!private$treated == 0) %>% 
-        dplyr::select(!!private$id) %>% 
+        dplyr::filter(!!private$treated == 0) %>%
+        dplyr::select(!!private$id) %>%
         unique() %>% pull()
-      
+
       treated_name <- private$data %>%
-        dplyr::filter(!!private$treated == 1) %>% 
-        dplyr::select(!!private$id) %>% 
+        dplyr::filter(!!private$treated == 1) %>%
+        dplyr::select(!!private$id) %>%
         unique() %>% pull()
-      
-      donor_names <- beta_names[beta_names %in% treated_name == FALSE] 
-      
+
+      donor_names <- beta_names[beta_names %in% treated_name == FALSE]
+
       names(betas) <- donor_names
       melt_betas <- tidyr::gather(betas, ID, weight)
-      
+
       melt_betas %>% ggplot2::ggplot(ggplot2::aes(x=weight, y=ID, fill=ID)) +
-        ggridges::geom_density_ridges() + 
+        ggridges::geom_density_ridges() +
         ggplot2::theme_minimal() +
         ggplot2::theme(legend.position = "none") %>% return()
     },
@@ -977,42 +979,42 @@ bayesianSynth <- R6::R6Class(
     #' Plots correlations between weights across draws.
     #' @return ggplot heatmap object with correlations.
     weightCorr = function(){
-      betas <- private$fitted %>% 
+      betas <- private$fitted %>%
         as.data.frame() %>%
         dplyr::select(contains('beta'))
-      
+
       beta_names <- private$data %>%
-        dplyr::filter(!!private$treated == 0) %>% 
-        dplyr::select(!!private$id) %>% 
+        dplyr::filter(!!private$treated == 0) %>%
+        dplyr::select(!!private$id) %>%
         unique() %>% pull()
-      
+
       treated_name <- private$data %>%
-        dplyr::filter(!!private$treated == 1) %>% 
-        dplyr::select(!!private$id) %>% 
+        dplyr::filter(!!private$treated == 1) %>%
+        dplyr::select(!!private$id) %>%
         unique() %>% pull()
-      
-      donor_names <- beta_names[beta_names %in% treated_name == FALSE] 
-      
+
+      donor_names <- beta_names[beta_names %in% treated_name == FALSE]
+
       names(betas) <- donor_names
-      
+
       cormat <- round(cor(betas),3)
       diag(cormat) <- NA
-      
+
       melted_cormat <- melt(cormat)
-      ggplot2::ggplot(data = melted_cormat, 
+      ggplot2::ggplot(data = melted_cormat,
                       ggplot2::aes(x=X1,
                                    y=X2,
-                                   fill=value)) + 
-        ggplot2::xlab('Units') + 
+                                   fill=value)) +
+        ggplot2::xlab('Units') +
         ggplot2::ylab('Units') +
         ggplot2::labs(fill = 'Corr') +
-        ggplot2::geom_tile() + 
+        ggplot2::geom_tile() +
         ggplot2::scale_fill_gradient2(low='red',
                                       mid = 'white',
                                       high='green') +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90,
                                                            vjust = 0.5,
-                                                           hjust=1)) %>% 
+                                                           hjust=1)) %>%
         return()
     }
   )

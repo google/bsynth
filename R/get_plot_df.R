@@ -13,21 +13,36 @@
 ## limitations under the License.
 ##
 #'
-#' @description
-#' Returns data.frame ready for plotting with confidence intervals.
-#' @param y_synth_draws Data.frame with each draw from the stan fit object.
-#' @param pre_data Data.frame with data before the intervention.
-#' @param post_data Data.frame with data after the intervention.
-#' @param time Name of the time period variable.
-#' @param oucome Name of the outcome variable.
-#' @param ci Width of the credible confidence interval.
+#' Returns Data Frame Ready for Plotting with Confidence Intervals
+#'
+#' This function processes data frames containing synthetic and observed outcomes,
+#' calculates confidence intervals for the synthetic outcomes, and returns a
+#' combined data frame suitable for plotting the results.
+#'
+#' @param y_synth_draws A data frame containing draws from the Stan fit object.
+#' @param pre_data A data frame with data before the intervention.
+#' @param post_data A data frame with data after the intervention.
+#' @param time The name of the time period variable (as a string).
+#' @param outcome The name of the outcome variable (as a string).
+#' @param ci The width of the credible confidence interval (default: 0.75).
+#'
+#' @return A data frame containing:
+#'   * `time`: The time period.
+#'   * `outcome`: The observed outcome.
+#'   * `y_synth`: The mean synthetic outcome.
+#'   * `LB`: The lower bound of the confidence interval for the synthetic outcome.
+#'   * `UB`: The upper bound of the confidence interval for the synthetic outcome.
+#'   * `tau`: The difference between the observed and synthetic outcomes.
+#'   * `tau_LB`: The lower bound of the confidence interval for `tau`.
+#'   * `tau_UB`: The upper bound of the confidence interval for `tau`.
+#'
 .get_plot_df <- function(y_synth_draws, pre_data,
                          post_data, time, outcome, ci = 0.75) {
   y_synth <- y_synth_draws %>%
     dplyr::group_by(!!time) %>%
     dplyr::summarise(
-      LB = quantile(y_synth, (1 - ci) / 2),
-      UB = quantile(y_synth, 1 - (1 - ci) / 2),
+      LB = stats::quantile(y_synth, (1 - ci) / 2),
+      UB = stats::quantile(y_synth, 1 - (1 - ci) / 2),
       y_synth = mean(y_synth)
     )
 
@@ -45,12 +60,31 @@
   return(df_plot_all)
 }
 
-#' @description
-#' Helper function to transform the data into a data.frame that can be
-#' plotted for the case with more than one treated unit.
-#' @param treated_ids Identifiers for the treated units.
-#' @param data Data.frame with the input data.
-#' @details other params same as get_plot_df() function.
+#' Prepare Data Frame for Plotting with Multiple Treated Units
+#'
+#' This function processes data for multiple treated units, calculating synthetic outcomes,
+#' confidence intervals, and treatment effects. It combines this information into a data
+#' frame suitable for plotting the results.
+#'
+#' @param y_synth_draws A data frame containing synthetic outcome draws for each treated unit and time period.
+#' @param data A data frame with the original data, including outcomes for treated units.
+#' @param treated_ids A vector of identifiers for the treated units.
+#' @param id The name of the variable in `data` that identifies units (as a string).
+#' @param time The name of the time period variable (as a string).
+#' @param outcome The name of the outcome variable (as a string).
+#' @param ci The width of the credible confidence interval (default: 0.75).
+#'
+#' @return A data frame containing:
+#'   * `time`: The time period.
+#'   * `id`: The unit identifier (including "Average" for the average treatment effect).
+#'   * `outcome`: The observed outcome (for treated units).
+#'   * `y_synth`: The mean synthetic outcome (for treated units and the average).
+#'   * `LB`: The lower bound of the confidence interval for the synthetic outcome.
+#'   * `UB`: The upper bound of the confidence interval for the synthetic outcome.
+#'   * `tau`: The treatment effect (difference between observed and synthetic outcomes).
+#'   * `tau_LB`: The lower bound of the confidence interval for the treatment effect.
+#'   * `tau_UB`: The upper bound of the confidence interval for the treatment effect.
+#'
 .get_plot_df2 <- function(y_synth_draws, data, treated_ids,
                           id, time, outcome, ci = 0.75) {
   data_treated <- data %>%
@@ -69,16 +103,16 @@
     dplyr::group_by(!!time) %>%
     dplyr::summarise(
       tau = mean(diff_draw),
-      tau_LB = quantile(diff_draw, (1 - ci) / 2),
-      tau_UB = quantile(diff_draw, 1 - (1 - ci) / 2)
+      tau_LB = stats::quantile(diff_draw, (1 - ci) / 2),
+      tau_UB = stats::quantile(diff_draw, 1 - (1 - ci) / 2)
     ) %>%
     dplyr::mutate(id = "Average")
 
   y_synth_i <- y_synth_draws %>%
     dplyr::group_by(!!time, !!id) %>%
     dplyr::summarise(
-      LB = quantile(y_hat, (1 - ci) / 2),
-      UB = quantile(y_hat, 1 - (1 - ci) / 2),
+      LB = stats::quantile(y_hat, (1 - ci) / 2),
+      UB = stats::quantile(y_hat, 1 - (1 - ci) / 2),
       y_synth = mean(y_hat)
     )
 

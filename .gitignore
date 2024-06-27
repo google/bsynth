@@ -3,3 +3,5 @@ inst/doc
 docs
 *.o
 *.so
+/doc/
+/Meta/
