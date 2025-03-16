@@ -30,10 +30,10 @@ data{
   row_vector[N] y_treated_pre;         // pre-intervention outcome for the
                                        //   treated unit
   int<lower=0> J;                      // number of donors
-  row_vector[N] y_donors_pre[J];       // matrix of order [J,N] with
+  array[J] row_vector[N] y_donors_pre;       // matrix of order [J,N] with
                                        //   pre-intervention outcome for donors
   int<lower=1> N_pred;                 // number of post-intervention periods
-  row_vector[N_pred] y_donors_post[J]; // post-intervention outcome for donors
+  array[J] row_vector[N_pred] y_donors_post; // post-intervention outcome for donors
 }
 
 transformed data{
@@ -44,11 +44,11 @@ transformed data{
   row_vector[j_plus_1] j_ones = rep_row_vector(1, j_plus_1);
   vector[T] t_ones = rep_vector(1.0, T);
 
-  row_vector[T] y_donors[J];      // Outcome variable for donor units.
+  array[J] row_vector[T] y_donors;      // Outcome variable for donor units.
 
   // Standardize the outcome variables.
-  row_vector[N] y_donors_pre_std[J];
-  row_vector[N_pred] y_donors_post_std[J];
+  array[J] row_vector[N] y_donors_pre_std;
+  array[J] row_vector[N_pred] y_donors_post_std;
   vector[J] mean_y_donors_pre;
   vector[J] sd_y_donors_pre;
   real mean_y = mean(y_treated_pre);
@@ -109,8 +109,8 @@ model{
   sigma ~ std_normal();
   {
     matrix[T, L] F = make_F(T, F_diag, F_lower);  // Create the Factor matrix.
-    row_vector[T] Y_target[1];
-    row_vector[T] Y_temp[j_plus_1];
+    array[1] row_vector[T] Y_target;
+    array[j_plus_1] row_vector[T] Y_temp;
     Y_target[1] = append_col(y_std,
                              y_missing);          // Outcome data to be updated.
 
