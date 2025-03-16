@@ -19,7 +19,7 @@
 data {
    int<lower=1> N;                    // number of pre-intervention periods
    int<lower=1> I;                    // number of treated units
-   vector[N] y[I];                    // outcome
+   array[I] vector[N] y;                    // outcome
    int<lower=0> K;                    // number of donors
    matrix[N,K] X;                     // pre-intervention outcome for donors
    int<lower=1> N_pred;               // number of post-intervention periods
@@ -30,9 +30,9 @@ data {
 transformed data{
    matrix[N, K] X_std;
    matrix[N_pred, K] X_pred_std;
-   vector[N] y_std[I];
-   real mean_y[I];
-	 real sd_y[I];
+   array[I] vector[N] y_std;
+   array[I] real mean_y;
+	 array[I] real sd_y;
    {
      vector[K] mean_X;
   	 vector[K] sd_X;
@@ -51,8 +51,8 @@ transformed data{
 }
 
 parameters {
-   real<lower=0> sigma[I];
-   simplex[K] beta[I];
+   array[I] real<lower=0> sigma;
+   array[I] simplex[K] beta;
 }
 
 model {
@@ -64,8 +64,8 @@ model {
 }
 
 generated quantities {
-   vector[N] y_sim[I];
-   vector[N_pred] y_pred[I];
+   array[I] vector[N] y_sim;
+   array[I] vector[N_pred] y_pred;
    for(i in 1:I){
       for (n in 1:N) {
       y_sim[i][n] = normal_rng(X_std[n,]*beta[i], sigma[i]) * sd_y[i] +

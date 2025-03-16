@@ -41,7 +41,7 @@ transformed data{
    vector[M_K] sd_M;
    real mean_y = mean(y);
    real sd_y = sd(y);
-   real time[N + N_pred] ;
+   array[N + N_pred] real time ;
    vector[N] y_std = (y - mean_y) / sd_y;
    int<lower=1> sumN = N + N_pred;
 
@@ -77,7 +77,7 @@ parameters {
 transformed parameters {
   vector[sumN] f;
   {
-  matrix[sumN,sumN] K_matrix = cov_exp_quad(time,alpha,rho) +
+  matrix[sumN,sumN] K_matrix = gp_exp_quad_cov(time,alpha,rho) +
                           diag_matrix(rep_vector(1e-9, sumN));
   matrix[sumN,sumN] L_K = cholesky_decompose(K_matrix);
   f = L_K * eta;

@@ -20,7 +20,7 @@
 data {
    int<lower=1> N;                    // number of pre-intervention periods
    int<lower=1> I;                    // number of treated units
-   vector[N] y[I];                    // outcome
+   array[I] vector[N] y;                    // outcome
    int<lower=0> K;                    // number of donors
    matrix[N,K] X;                     // pre-intervention outcome for donors
    int<lower=1> N_pred;               // number of post-intervention periods
@@ -30,10 +30,10 @@ data {
 transformed data{
    matrix[N, K] X_std;
    matrix[N_pred, K] X_pred_std;
-   vector[N] y_std[I];
-   real mean_y[I];
-	real sd_y[I];
-   real time[N + N_pred] ;
+   array[I] vector[N] y_std;
+   array[I] real mean_y;
+	array[I] real sd_y;
+   array[N + N_pred] real time ;
    int<lower=1> sumN = N + N_pred;
 
    for(t in 1:sumN){
@@ -60,17 +60,17 @@ transformed data{
 }
 
 parameters {
-   real<lower=0> sigma[I];
-   simplex[K] beta[I];
-   real<lower=0> rho[I];
-   real<lower=0> alpha[I];
-   vector[sumN] eta[I];
+   array[I] real<lower=0> sigma;
+   array[I] simplex[K] beta;
+   array[I] real<lower=0> rho;
+   array[I] real<lower=0> alpha;
+   array[I] vector[sumN] eta;
 }
 
 transformed parameters {
-  vector[sumN] f[I];
+  array[I] vector[sumN] f;
   for(i in 1:I){
-  matrix[sumN,sumN] K_matrix = cov_exp_quad(time,alpha[i],rho[i]) +
+  matrix[sumN,sumN] K_matrix = gp_exp_quad_cov(time,alpha[i],rho[i]) +
                           diag_matrix(rep_vector(1e-9, sumN));
   matrix[sumN,sumN] L_K = cholesky_decompose(K_matrix);
   f[i] = L_K * eta[i];
@@ -89,8 +89,8 @@ model {
 }
 
 generated quantities {
-   vector[N] y_sim[I];
-   vector[N_pred] y_pred[I];
+   array[I] vector[N] y_sim;
+   array[I] vector[N_pred] y_pred;
    for(i in 1:I){
       for (n in 1:N) {
       y_sim[i][n] = normal_rng(X_std[n,]*beta[i] +
